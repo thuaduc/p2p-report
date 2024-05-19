@@ -1,0 +1,29 @@
+\RequirePackage[l2tabu,orthodox]{nag}
+
+\documentclass[headsepline,footsepline,footinclude=false,oneside,fontsize=11pt,paper=a4,listof=totoc,bibliography=totoc,DIV=12]{scrbook} % one-sided
+
+\input{settings}
+
+% TODO: change thesis information
+\newcommand*{\getUniversity}{Technical University of Munich}
+\newcommand*{\getFaculty}{Chair of Network Architectures \\ and Services}
+\newcommand*{\getTitle}{Initial Report}
+\newcommand*{\getAuthor}{Thua-Duc Nguyen \& Duc-Trung Nguyen}
+\newcommand*{\getSubmissionDate}{19.03.2024}
+\newcommand*{\getSubmissionLocation}{München}
+
+\begin{document}
+
+\selectlanguage{english}
+
+\pagenumbering{alph}
+\input{pages/cover}
+
+\frontmatter{}
+
+\input{chapters/initial_report.tex}
+
+
+\printbibliography{}
+
+\end{document}

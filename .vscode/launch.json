@@ -1,0 +1,13 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "C/C++ Runner: Debug Session",
+      "type": "lldb",
+      "request": "launch",
+      "args": [],
+      "cwd": "/Users/nguyenduc/Downloads/Studium/SS 2024/P2P/p2p-report",
+      "program": "/Users/nguyenduc/Downloads/Studium/SS 2024/P2P/p2p-report/build/Debug/outDebug"
+    }
+  ]
+}

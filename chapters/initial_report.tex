@@ -1,0 +1,136 @@
+\section{Team Information}
+
+\begin{itemize}
+    \item \textbf{Thua Duc Nguyen}. \textbf{ID:} 03752081
+    \item \textbf{Duc Trung Nguyen}. \textbf{ID:} 03783118
+    \item \textbf{Team Name:} Gossip-7
+    \item \textbf{Implementation:} Gossip Protocol
+\end{itemize}
+
+\section{Programming Language and Operating System}
+
+For this project, we have chosen Go as our programming language. Additionally, we utilize Protocol Buffers for efficient data serialization and gRPC for designing APIs. Employing Go, Protocol Buffers, and gRPC provides a multitude of advantages:
+
+\begin{enumerate}
+    \item \textbf{Efficiency in Development:}
+    \begin{itemize}
+        \item \textbf{GoLang:} Go's simplicity, readability, and built-in concurrency support make it an excellent choice for developing networked applications like VoidPhone. Its compiled nature ensures swift execution and optimal resource utilization, essential for a P2P application where performance is paramount.
+    \end{itemize}
+    
+    \item \textbf{Protocol Buffers for Data Serialization:}
+    \begin{itemize}
+        \item \textbf{Efficient Serialization:} Protocol Buffers excel in efficient data serialization. Unlike JSON's text-based approach, they employ a compact binary format. This translates to significant performance enhancements \parencite{hardwareAcceleratorProtocolBuffers}. Benchmarks indicate Protocol Buffers can be up to six times faster than JSON, with messages being 34\% smaller and delivery to JavaScript code seeing a 21\% speedup \parencite{beatingJSONWithProtobuf}. This efficiency makes Protocol Buffers ideal for applications like Voidphone, where data transfer speed and size are crucial.
+    \end{itemize}
+    
+    \item \textbf{gRPC for Communication:}
+    \begin{itemize}
+        \item \textbf{Bidirectional Streaming:} gRPC supports bidirectional streaming \parencite{grpcCoreConcepts}, facilitating efficient real-time communication between peers.
+        \item \textbf{Strong Typing and Code Generation:} Leveraging Protocol Buffers, gRPC defines service contracts, enabling strong typing and automatic code generation for both client and server. This reduces the likelihood of errors and streamlines the development process.
+    \end{itemize}
+    
+    \item \textbf{Security and Reliability:}
+    \begin{itemize}
+        \item \textbf{TLS Support in gRPC:} gRPC supports Transport Layer Security (TLS) encryption out of the box, ensuring secure communication between peers in the VoidPhone network. This helps mitigate potential security threats, safeguarding user privacy and data integrity.
+    \end{itemize}
+\end{enumerate}
+
+\section{Build System}
+
+We utilize Go Modules \parencite{usingGoModules}, the official dependency management system for Go projects since Go 1.11. Employing Go Modules alongside additional tooling provides an optimal environment for building our VoidPhone project:
+
+\begin{itemize}
+    \item \textbf{Simplicity:} The Go build system is seamlessly integrated into the Go toolchain, eliminating the need to install or learn a separate build system. This ensures a streamlined development environment.
+    \item \textbf{Native Support:} Go inherently supports compiling Go source code and linking dependencies. Furthermore, official packages for Protobuf generation \texttt{protoc-gen-go} \parencite{protocGenGo} and gRPC server/client generation \texttt{grpc-gateway} \parencite{grpcGateway} seamlessly integrate with the Go build system.
+    \item \textbf{Flexibility:} While lightweight, the Go build system allows for extending functionality through custom build commands and integration with other tools. This flexibility is invaluable for tasks such as generating Protobuf code from `.proto` files and gRPC interfaces.
+\end{itemize}
+
+\section{Quality Assurance Measures}
+To ensure the quality of our software, we implement the following measures:
+\begin{itemize}
+    \item \textbf{Test Cases:} We employ unit tests for business logic and end-to-end (E2E) tests for APIs.
+    \item \textbf{Linter:} We utilize the built-in \texttt{glint} linter.
+    \item \textbf{Security Scanning Tool:} We employ \texttt{securego.io} for security scanning.
+    \item \textbf{Static Analysis:} Valgrind is used for static analysis.
+    \item \textbf{Logging:} We utilize \texttt{uber-go/zap} as our logging library.
+\end{itemize}
+
+\section{Support Libraries}
+\subsection*{Gossip}
+\begin{itemize}
+    \item \textbf{URL:} \url{https://pkg.go.dev/github.com/zemnmez/cockroach/gossip}
+    \item \textbf{Description:} A library for implementing the gossip protocol, which allows nodes to efficiently share information in a decentralized network. It is designed to help build scalable, fault-tolerant distributed systems.
+\end{itemize}
+
+\subsection*{SHA256 Encryption}
+\begin{itemize}
+    \item \textbf{URL:} \url{https://pkg.go.dev/crypto/sha256}
+    \item \textbf{Description:} The \texttt{crypto/sha256} package in Go provides implementations of the SHA-256 cryptographic hash function, which is widely used for secure data hashing and verification.
+\end{itemize}
+
+\subsection*{Config File Parser}
+\begin{itemize}
+    \item \textbf{URL:} \url{https://github.com/graniticio/inifile}
+    \item \textbf{Description:} A library for parsing INI configuration files, allowing easy reading and writing of configuration settings. INI files are simple text files with a structure that is easy to parse.
+\end{itemize}
+
+\subsection*{API}
+\begin{itemize}
+    \item \textbf{URL:} \url{https://grpc.io/}
+    \item \textbf{Description:} gRPC is a high-performance, open-source framework for building remote procedure call (RPC) APIs. It uses HTTP/2 for transport and supports features like bidirectional streaming and strong typing.
+\end{itemize}
+
+\subsection*{Code Generation}
+\begin{itemize}
+    \item \textbf{URL:} \url{https://pkg.go.dev/google.golang.org/protobuf/cmd/protoc-gen-go}
+    \item \textbf{Description:} The \texttt{protoc-gen-go} plugin for Protocol Buffers generates Go source files from \texttt{.proto} definitions. This facilitates the use of Protocol Buffers in Go applications by automating the creation of data structures and serialization code.
+\end{itemize}
+
+\subsection*{P2P}
+\begin{itemize}
+    \item \textbf{URL:} \url{https://libp2p.io/}
+    \item \textbf{Description:} libp2p is a modular network stack that enables the development of peer-to-peer (P2P) applications. It provides tools for creating decentralized networks, handling peer discovery, and managing secure communications.
+\end{itemize}
+
+\subsection*{Testing}
+\begin{itemize}
+    \item \textbf{URL:} \url{https://pkg.go.dev/testing}
+    \item \textbf{Description:} The \texttt{testing} package in Go provides support for automated testing of Go code. It includes tools for writing and running tests, benchmarks, and example code to ensure code correctness and performance.
+\end{itemize}
+
+\subsection*{Build}
+\begin{itemize}
+    \item \textbf{URL:} \url{https://go.dev/blog/using-go-modules} \& \url{https://taskfile.dev/}
+    \item \textbf{Go Modules:} The official dependency management system for Go, introduced in Go 1.11. It simplifies dependency management and versioning for Go projects.
+    \item \textbf{Taskfile:} A task runner for Go projects that allows defining tasks in a YAML file. It helps automate development workflows, such as building, testing, and
+\end{itemize}
+
+\section{License}
+We decide to use the \textbf{MIT} License for this project because of the following reason:
+\begin{itemize}
+    \item \textbf{Permissive:} Allows unrestricted use, modification, and distribution for any purpose.
+    \item \textbf{Simple:} Clear and concise terms make it easy to understand and comply with.
+    \item \textbf{Compatible:} Works well with other open-source licenses, facilitating collaboration and derivative works.
+    \item \textbf{Minimal restrictions:} Encourages collaboration by imposing few limitations on usage.
+    \item \textbf{Legal clarity:} Provides clear legal protection for creators and users of the code.
+    \item \textbf{Encourages commercial use:} Attractive to businesses as it allows incorporation into proprietary products without open-sourcing.
+\end{itemize}
+
+\section{Team Expertise}
+\begin{itemize}
+    \item \textbf{Thua-Duc Nguyen:} Experience in Software Development and Current Go back-end developer
+    \item \textbf{Duc-Trung Nguyen:} Experience in Software Development and Understanding of blockchain systems and security,
+\end{itemize}
+
+\section{Planned Workload Distribution}
+\begin{itemize}
+    \item \textbf{Thua-Duc Nguyen}
+    \begin{itemize}
+        \item Developing and testing Gossip API
+        \item Implementing security measures
+    \end{itemize}
+    \item \textbf{Duc-Trung Nguyen}
+    \begin{itemize}
+        \item Designing and implementing the Gossip P2P architecture
+        \item Quality assurance of the P2P implementation
+    \end{itemize}
+\end{itemize}
