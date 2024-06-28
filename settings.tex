@@ -46,6 +46,26 @@
 \newcommand{\cmark}{\ding{51}}%
 \newcommand{\xmark}{\ding{55}}%
 
+% no identation on new paragraph
+\usepackage[parfill]{parskip}
+
+% Configuration for listings package to display Go code
+\lstset{ 
+    language=Go,
+    basicstyle=\ttfamily\footnotesize,
+    keywordstyle=\color{blue},
+    commentstyle=\color{gray},
+    stringstyle=\color{red},
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    stepnumber=1,
+    numbersep=10pt,
+    backgroundcolor=\color{lightgray!20},
+    showspaces=false,
+    showstringspaces=false,
+    breaklines=true,
+    frame=single
+}
 
 \usepackage[acronym,xindy,toc]{glossaries} % TODO: include "acronym" if glossary and acronym should be separated
 \makeglossaries
@@ -53,7 +73,6 @@
 
 
 \bibliography{bibliography}
-
 \setkomafont{disposition}{\normalfont\bfseries} % use serif font for headings
 \linespread{1.05} % adjust line spread for mathpazo font
 
@@ -86,13 +105,13 @@
 % Settings for lstlistings
 
 % Use this for basic highlighting
-\lstset{%
-  basicstyle=\ttfamily,
-  columns=fullflexible,
-  autogobble,
-  keywordstyle=\bfseries\color{TUMBlue},
-  stringstyle=\color{TUMAccentGreen}
-}
+% \lstset{%
+%   basicstyle=\ttfamily,
+%   columns=fullflexible,
+%   autogobble,
+%   keywordstyle=\bfseries\color{TUMBlue},
+%   stringstyle=\color{TUMAccentGreen}
+% }
 
 % use this for C# highlighting
 % %\setmonofont{Consolas} %to be used with XeLaTeX or LuaLaTeX
