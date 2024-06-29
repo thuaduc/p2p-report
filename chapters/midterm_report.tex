@@ -7,7 +7,7 @@ The module \texttt{gossip} has been developed using the Golang programming langu
 
 As the specification requires, the \texttt{gossip} module runs as two independent protocols: one API protocol and one P2P protocol. However, these two protocols share some data to fulfill the functionality of the module. 
 
-\begin{figure}[h]
+\begin{figure}[H]
     \centering
     \includegraphics[width=0.8\textwidth]{pics/structure.png}
     \caption{Structure of the gossip module}
@@ -44,8 +44,8 @@ The Handler utilizes a custom logger for monitoring and error reporting, enhanci
 
 This seamless interaction between the Server and Handler ensures the system can efficiently process and route messages, maintaining data integrity and system state across distributed nodes. The use of Go's concurrency primitives, like goroutines and channels, allows the API to handle multiple connections simultaneously, making it scalable and robust for real-time, distributed communication.
 
-
 \subsection{P2P}
+
 \subsubsection{Bootstrapping strategy:}
 
 Bootstrapping service is one of the important components of a P2P network that helps newly joined Node to get initial knowledge on current active peers in the network. 
@@ -55,70 +55,111 @@ In our current implementation, we use a static bootstrapping method to ensure th
     \item \textbf{Fetching Initial Peers}: After registration, the new node fetches an initial list of peers from the bootstrapper server. This list is used to establish initial connections and begin participating in the gossip protocol.
 \end{enumerate}
 
-\subsubsection{Gossip Node:}
+For security, we implement POW protocol when a node register to bootstrap (refer to section....)
 
+\subsubsection{Gossip Node:}
 
 The \texttt{GossipNode} implementation forms a critical component of our P2P VoIP application. It is designed to manage peer-to-peer communication, allowing nodes to join and leave the network, and to disseminate information efficiently. This report provides a detailed overview of the current functionalities and properties of the \texttt{GossipNode}.
 
 \subsubsection{Functionalities}
-\begin{enumerate}
-    \item \textbf{Join Network}:
-    \begin{itemize}
-        \item \textbf{Register with Bootstrapper}: When a node starts, it registers itself with the bootstrapper server to announce its presence in the network.
-        \item \textbf{Fetch Initial Peers}: After registration, the node fetches an initial list of peers from the bootstrapper server to begin establishing connections.
-    \end{itemize}
-    \item \textbf{Leave Network}:
-    \begin{itemize}
-        \item \textbf{Announce Departure}: When a node leaves the network, it announces its departure to its known peers to update their peer lists accordingly.
-    \end{itemize}
-    \item \textbf{Spread Information}:
-    \begin{itemize}
-        \item \textbf{Gossip Protocol}: The node disseminates information (such as new peers joining or leaving, and application data) using the gossip protocol. This involves sending messages to a random subset of known peers.
-        \item \textbf{Handle Gossip Messages}: The node processes incoming gossip messages and forwards them to other peers, ensuring widespread distribution of information.
-    \end{itemize}
-    \item \textbf{Peer List Management}:
-    \begin{itemize}
-        \item \textbf{Periodic Peer Exchange}: Nodes periodically exchange peer lists to maintain up-to-date knowledge of the network.
-        \item \textbf{Maintain Peer List}: The node maintains a list of known peers, adding new peers and removing inactive ones as necessary.
-    \end{itemize}
-\end{enumerate}
+
+The \texttt{GossipNode} implementation offers several key functionalities. Firstly, when a node starts, it joins the network by registering with the bootstrapper server to announce its presence. After this registration, the node fetches an initial list of peers from the bootstrapper server to begin establishing connections. When a node leaves the network, it announces its departure to its known peers, ensuring their peer lists are updated accordingly.
+
+Additionally, the node spreads information using a gossip protocol, which involves disseminating data such as new peers joining or leaving, and application-related messages, to a random subset of known peers. The node processes incoming gossip messages and forwards them to other peers, ensuring widespread distribution of information. For peer list management, nodes periodically exchange peer lists to maintain up-to-date knowledge of the network. The node maintains a list of known peers, dynamically adding new peers and removing inactive ones as necessary.
 
 \subsubsection{Properties}
-\begin{enumerate}
-    \item \textbf{Fanout}:
-    \begin{itemize}
-        \item \textbf{Definition}: Fanout refers to the number of peers a node gossips to during each gossip round.
-        \item \textbf{Current Setting}: The fanout is set to 2, meaning each node sends gossip messages to 2 randomly selected peers.
-    \end{itemize}
-    \item \textbf{Gossip Interval}:
-    \begin{itemize}
-        \item \textbf{Definition}: This is the interval at which periodic gossip messages are sent.
-        \item \textbf{Current Setting}: The gossip interval is set to 5 seconds, ensuring regular dissemination of information.
-    \end{itemize}
-    \item \textbf{Message Cache}:
-    \begin{itemize}
-        \item \textbf{Definition}: The message cache stores recently seen messages to prevent redundant processing and forwarding.
-        \item \textbf{Implementation}: The cache uses a map data structure to store message identifiers, ensuring quick lookup and efficient memory usage.
-    \end{itemize}
-    \item \textbf{Peers List}:
-    \begin{itemize}
-        \item \textbf{Definition}: The list of known peers that a node maintains to facilitate communication.
-        \item \textbf{Management}: The list is updated dynamically as the node learns about new peers or detects the departure of existing peers.
-    \end{itemize}
-    \item \textbf{Bootstrap URL}:
-    \begin{itemize}
-        \item \textbf{Definition}: The URL of the bootstrapper server used for initial registration and fetching peers.
-        \item \textbf{Usage}: Nodes use this URL to register themselves and to obtain an initial list of peers when they join the network.
-    \end{itemize}
-\end{enumerate}
+
+The \texttt{GossipNode} has several important properties. Fanout refers to the number of peers a node gossips to during each gossip round. Currently, the fanout is set to 2, meaning each node sends gossip messages to 2 randomly selected peers. The gossip interval is the interval at which periodic gossip messages are sent; it is currently set to 5 seconds, ensuring regular dissemination of information.
+
+The message cache stores recently seen messages to prevent redundant processing and forwarding. It uses a map data structure to store message identifiers, ensuring quick lookup and efficient memory usage. The peers list is a record of known peers that a node maintains to facilitate communication. This list is updated dynamically as the node learns about new peers or detects the departure of existing peers. Finally, the bootstrap URL is the address of the bootstrapper server used for initial registration and fetching peers. Nodes use this URL to register themselves and to obtain an initial list of peers when they join the network.
 
 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{pics/gossip.message.png}
+    \caption{Gossip Message}
+\end{figure}
 
 
 
 \section{Security Measures}
 
+\subsection{Bootstrapper Proof-Of-Work (POW):}
+
+For security of Bootstrapper, we implement POW mechanism for the registering process. To avoid sybil attack, we define target difficulty, which is the number of leading zeros of a hash that a peer should calculate in order to register successfully. Details of the process are belows:
+
+\subsubsection{BOOTSTRAP INIT}
+
+When a new peer opens a connection to Bootrapping Server, the server sends an INIT message to the peer. This message contains a challenge and its target difficulty which this peer needs to use to calculate the hash.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{pics/bootstrap.init.png}
+    \caption{Bootstrap Init Message}
+\end{figure}
+
+\subsubsection{BOOTSTRAP REGISTER}
+
+The peer calulate the SHA256 hash of the concatination of nonce (random number) and the challenge. If the resulting hash has the first n bits set to zeros (wheras n = target difficulty), then the peer can register by sending the BOOTSTRAP REGISTER message. If not, the nonce has to be changed to another random value and retried until one is found which gives one of the required SHA256 values. Note that SHA256 is considered a pseudo-random function. This means that there is no other possible way to find such values apart from randomly retrying them.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{pics/bootstrap.register.png}
+    \caption{Bootstrap Register Message}
+\end{figure}
+
+\subsubsection{BOOTSTRAP SUCCESS}
+
+If registeration is successful, meta data of the new peer got saved in local memory of the bootstrapping service and a BOOTSTRAP SUCCESS message is returned to the peer. The message also contains initial peer list.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{pics/bootstrap.success.png}
+    \caption{Bootstrap Success Message}
+\end{figure}
+
+\subsubsection{BOOTSTRAP FAILURE}
+If registeration is unsuccesful, meta data of the new peer got saved in local memory of the bootstrapping service and a BOOTSTRAP FAILURE message is returned to the peer with error message. 
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{pics/bootstrap.failure.png}
+    \caption{Bootstrap Failure Message}
+\end{figure}
+
+
+
+
 \section{Specification of the peer-to-peer protocol that will be implemented}
+
+\subsection{Message Types}
+
+500-503
+
+504: BOOTSTRAP INIT
+
+505: BOOTSTRAP REGISTER
+
+506: BOOTSTRAP SUCCESS
+
+507: BOOTSTRAP FAILURE
+
+
+508: place holder
+
+509: place holder
+
+
+510: DATA\_SPREAD
+
+511: PEER\_ANNOUNCE
+
+512: PEER\_LEAVE
+
+513: PEER\_LIST\_REQUEST
+
+514: PEER\_LIST\_REQUEST
+
 
 \section{Future Work}
 
