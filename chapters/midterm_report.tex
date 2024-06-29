@@ -46,8 +46,75 @@ This seamless interaction between the Server and Handler ensures the system can 
 
 
 \subsection{P2P}
+\subsubsection{Bootstrapping strategy:}
 
-TODO: Trung
+Bootstrapping service is one of the important components of a P2P network that helps newly joined Node to get initial knowledge on current active peers in the network. 
+In our current implementation, we use a static bootstrapping method to ensure that new nodes can join the network and connect to existing peers. The bootstrapping process involves the following steps:
+\begin{enumerate}
+    \item \textbf{Registration}: When a new node starts, it registers itself with the bootstrapper server. The server maintains a list of all registered peers.
+    \item \textbf{Fetching Initial Peers}: After registration, the new node fetches an initial list of peers from the bootstrapper server. This list is used to establish initial connections and begin participating in the gossip protocol.
+\end{enumerate}
+
+\subsubsection{Gossip Node:}
+
+
+The \texttt{GossipNode} implementation forms a critical component of our P2P VoIP application. It is designed to manage peer-to-peer communication, allowing nodes to join and leave the network, and to disseminate information efficiently. This report provides a detailed overview of the current functionalities and properties of the \texttt{GossipNode}.
+
+\subsubsection{Functionalities}
+\begin{enumerate}
+    \item \textbf{Join Network}:
+    \begin{itemize}
+        \item \textbf{Register with Bootstrapper}: When a node starts, it registers itself with the bootstrapper server to announce its presence in the network.
+        \item \textbf{Fetch Initial Peers}: After registration, the node fetches an initial list of peers from the bootstrapper server to begin establishing connections.
+    \end{itemize}
+    \item \textbf{Leave Network}:
+    \begin{itemize}
+        \item \textbf{Announce Departure}: When a node leaves the network, it announces its departure to its known peers to update their peer lists accordingly.
+    \end{itemize}
+    \item \textbf{Spread Information}:
+    \begin{itemize}
+        \item \textbf{Gossip Protocol}: The node disseminates information (such as new peers joining or leaving, and application data) using the gossip protocol. This involves sending messages to a random subset of known peers.
+        \item \textbf{Handle Gossip Messages}: The node processes incoming gossip messages and forwards them to other peers, ensuring widespread distribution of information.
+    \end{itemize}
+    \item \textbf{Peer List Management}:
+    \begin{itemize}
+        \item \textbf{Periodic Peer Exchange}: Nodes periodically exchange peer lists to maintain up-to-date knowledge of the network.
+        \item \textbf{Maintain Peer List}: The node maintains a list of known peers, adding new peers and removing inactive ones as necessary.
+    \end{itemize}
+\end{enumerate}
+
+\subsubsection{Properties}
+\begin{enumerate}
+    \item \textbf{Fanout}:
+    \begin{itemize}
+        \item \textbf{Definition}: Fanout refers to the number of peers a node gossips to during each gossip round.
+        \item \textbf{Current Setting}: The fanout is set to 2, meaning each node sends gossip messages to 2 randomly selected peers.
+    \end{itemize}
+    \item \textbf{Gossip Interval}:
+    \begin{itemize}
+        \item \textbf{Definition}: This is the interval at which periodic gossip messages are sent.
+        \item \textbf{Current Setting}: The gossip interval is set to 5 seconds, ensuring regular dissemination of information.
+    \end{itemize}
+    \item \textbf{Message Cache}:
+    \begin{itemize}
+        \item \textbf{Definition}: The message cache stores recently seen messages to prevent redundant processing and forwarding.
+        \item \textbf{Implementation}: The cache uses a map data structure to store message identifiers, ensuring quick lookup and efficient memory usage.
+    \end{itemize}
+    \item \textbf{Peers List}:
+    \begin{itemize}
+        \item \textbf{Definition}: The list of known peers that a node maintains to facilitate communication.
+        \item \textbf{Management}: The list is updated dynamically as the node learns about new peers or detects the departure of existing peers.
+    \end{itemize}
+    \item \textbf{Bootstrap URL}:
+    \begin{itemize}
+        \item \textbf{Definition}: The URL of the bootstrapper server used for initial registration and fetching peers.
+        \item \textbf{Usage}: Nodes use this URL to register themselves and to obtain an initial list of peers when they join the network.
+    \end{itemize}
+\end{enumerate}
+
+
+
+
 
 \section{Security Measures}
 
