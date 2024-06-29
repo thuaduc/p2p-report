@@ -50,28 +50,38 @@ This seamless interaction between the Server and Handler ensures the system can 
 
 Bootstrapping service is one of the important components of a P2P network that helps newly joined Node to get initial knowledge on current active peers in the network. 
 In our current implementation, we use a static bootstrapping method to ensure that new nodes can join the network and connect to existing peers. The bootstrapping process involves the following steps:
+
 \begin{enumerate}
     \item \textbf{Registration}: When a new node starts, it registers itself with the bootstrapper server. The server maintains a list of all registered peers.
     \item \textbf{Fetching Initial Peers}: After registration, the new node fetches an initial list of peers from the bootstrapper server. This list is used to establish initial connections and begin participating in the gossip protocol.
 \end{enumerate}
 
-For security, we implement POW protocol when a node register to bootstrap (refer to section....)
+
+Certainly, here is the shortened version:
 
 \subsubsection{Gossip Node:}
 
-The \texttt{GossipNode} implementation forms a critical component of our P2P VoIP application. It is designed to manage peer-to-peer communication, allowing nodes to join and leave the network, and to disseminate information efficiently. This report provides a detailed overview of the current functionalities and properties of the \texttt{GossipNode}.
+The \texttt{GossipNode} implementation supports key functionalities for managing peer-to-peer communication. When a node starts, it registers with the bootstrapper server and fetches an initial list of peers to establish connections. When a node leaves, it announces its departure to its known peers, updating their peer lists.
 
-\subsubsection{Functionalities}
+The node disseminates information using a gossip protocol, spreading data such as new peers joining or leaving, and application messages to a random subset of peers. It processes and forwards incoming gossip messages to ensure widespread distribution. Nodes periodically exchange peer lists to maintain up-to-date network knowledge, dynamically adding new peers and removing inactive ones as necessary. 
 
-The \texttt{GossipNode} implementation offers several key functionalities. Firstly, when a node starts, it joins the network by registering with the bootstrapper server to announce its presence. After this registration, the node fetches an initial list of peers from the bootstrapper server to begin establishing connections. When a node leaves the network, it announces its departure to its known peers, ensuring their peer lists are updated accordingly.
-
-Additionally, the node spreads information using a gossip protocol, which involves disseminating data such as new peers joining or leaving, and application-related messages, to a random subset of known peers. The node processes incoming gossip messages and forwards them to other peers, ensuring widespread distribution of information. For peer list management, nodes periodically exchange peer lists to maintain up-to-date knowledge of the network. The node maintains a list of known peers, dynamically adding new peers and removing inactive ones as necessary.
+A message handler is integrated into the \texttt{GossipNode}, which picks up the message type from the gossip message and handles it accordingly. This handler ensures that different types of messages (such as announcements, departures, data spreads, and peer list requests) are processed correctly and efficiently within the network.
 
 \subsubsection{Properties}
 
-The \texttt{GossipNode} has several important properties. Fanout refers to the number of peers a node gossips to during each gossip round. Currently, the fanout is set to 2, meaning each node sends gossip messages to 2 randomly selected peers. The gossip interval is the interval at which periodic gossip messages are sent; it is currently set to 5 seconds, ensuring regular dissemination of information.
+The \texttt{GossipNode} has several properties. The fanout, set to n=2, determines the number of peers a node gossips to during each round. The gossip interval, set to m=5 seconds, specifies the frequency of gossip messages. The message cache prevents redundant processing by storing recently seen messages using a map data structure. The peers list, updated dynamically, maintains known peers for communication. The bootstrap URL is used for initial registration and fetching peers when nodes join the network.
 
-The message cache stores recently seen messages to prevent redundant processing and forwarding. It uses a map data structure to store message identifiers, ensuring quick lookup and efficient memory usage. The peers list is a record of known peers that a node maintains to facilitate communication. This list is updated dynamically as the node learns about new peers or detects the departure of existing peers. Finally, the bootstrap URL is the address of the bootstrapper server used for initial registration and fetching peers. Nodes use this URL to register themselves and to obtain an initial list of peers when they join the network.
+
+\subsubsection{Gossip Message}
+
+For efficient communication between peer, we define a structrue for Gossip Message(figure below):
+
+\begin{itemize}
+    \item \textbf{MESSAGE\_TYPE}:  Predefined type of gossip message.
+    \item \textbf{TTL (Time to Live)}:  Get from API call, reduce by each hop.
+    \item \textbf{RESERVED}: Place holder.
+    \item \textbf{PAYLOAD}:  Data get from API call.
+\end{itemize}
 
 
 \begin{figure}[H]
@@ -80,7 +90,17 @@ The message cache stores recently seen messages to prevent redundant processing 
     \caption{Gossip Message}
 \end{figure}
 
-
+\begin{itemize}
+    \item \textbf{GossipMessageType}:
+      
+        \begin{itemize}
+            \item \textbf{PEER\_ANNOUNCE}: Message announcing a new peer.
+            \item \textbf{PEER\_LEAVE}: Message announcing a peer leaving the network.
+            \item \textbf{DATA\_SPREAD}: Message containing data to be spread across the network.
+            \item \textbf{PEER\_LIST\_REQUEST}: Message requesting the list of known peers.
+            \item \textbf{PEER\_LIST\_RESPONSE}: Message containing the list of known peers.
+        \end{itemize}
+\end{itemize}
 
 \section{Security Measures}
 
@@ -134,7 +154,7 @@ If registeration is unsuccesful, meta data of the new peer got saved in local me
 
 \subsection{Message Types}
 
-500-503
+500-503: API SPECIFICATION
 
 504: BOOTSTRAP INIT
 
@@ -145,9 +165,9 @@ If registeration is unsuccesful, meta data of the new peer got saved in local me
 507: BOOTSTRAP FAILURE
 
 
-508: place holder
+508: PLACE\_HOLDER
 
-509: place holder
+509: PLACE\_HOLDER
 
 
 510: DATA\_SPREAD
@@ -163,6 +183,25 @@ If registeration is unsuccesful, meta data of the new peer got saved in local me
 
 \section{Future Work}
 
+In the upcoming weeks, there are still a few missing functionalities that need to be implemented:
+
+\begin{itemize}
+    \item \textbf{Gossip Message Handler in GossipNode}: Implement a handler that can pick up the message type from a gossip message and handle it accordingly.
+    \item \textbf{Peer List Sharing Between Nodes}: Develop functionality for periodic peer list exchange to maintain up-to-date network knowledge.
+    \item \textbf{Bootstrap Server to Ping Nodes}: Add a feature in the bootstrap server to ping nodes periodically to check for their vitality.
+    \item \textbf{Node Join/Leave Announcements}: Ensure that nodes announce their presence when joining and notify the network when they leave.
+    \item \textbf{Further Security Measures}: Implement additional security measures to enhance the robustness and security of the P2P network.
+\end{itemize}
+
+In the upcoming weeks, there are still a few missing functionalities
+
 \section{Workload distributed}
 
+The initial distribution works out very well as we are responsible for each part as following: Duc TrungTrung (design and implement P2P Protocols, including bootstrapping mechanism), Thua Duc (implement API server, design overall architecture of the Peer, and security measurement). We will continue with that strategy.
+
+
 \section{Effort spent for the project}
+
+Throughout the project, we maintained regular communication and coordination to ensure that each team member was contributing equally. Weekly meetings were held to discuss progress, allocate tasks, and address any challenges faced. This collaborative approach allowed us to leverage each member's strengths and work effectively as a team.
+
+The project was a result of the collective effort of all team members, with each individual contributing equally to its success.
