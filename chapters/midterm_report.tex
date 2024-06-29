@@ -9,7 +9,7 @@ As the specification requires, the \texttt{gossip} module runs as two independen
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\textwidth]{pics/structure.png}
+    \includegraphics[width=0.5\textwidth]{pics/structure.png}
     \caption{Structure of the gossip module}
 \end{figure}
 
@@ -86,7 +86,7 @@ For efficient communication between peer, we define a structrue for Gossip Messa
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\textwidth]{pics/gossip.message.png}
+    \includegraphics[width=0.5\textwidth]{pics/gossip.message.png}
     \caption{Gossip Message}
 \end{figure}
 
@@ -114,7 +114,7 @@ When a new peer opens a connection to Bootrapping Server, the server sends an IN
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\textwidth]{pics/bootstrap.init.png}
+    \includegraphics[width=0.5\textwidth]{pics/bootstrap.init.png}
     \caption{Bootstrap Init Message}
 \end{figure}
 
@@ -124,7 +124,7 @@ The peer calulate the SHA256 hash of the concatination of nonce (random number) 
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\textwidth]{pics/bootstrap.register.png}
+    \includegraphics[width=0.5\textwidth]{pics/bootstrap.register.png}
     \caption{Bootstrap Register Message}
 \end{figure}
 
@@ -134,7 +134,7 @@ If registeration is successful, meta data of the new peer got saved in local mem
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\textwidth]{pics/bootstrap.success.png}
+    \includegraphics[width=0.5\textwidth]{pics/bootstrap.success.png}
     \caption{Bootstrap Success Message}
 \end{figure}
 
@@ -143,7 +143,7 @@ If registeration is unsuccesful, meta data of the new peer got saved in local me
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\textwidth]{pics/bootstrap.failure.png}
+    \includegraphics[width=0.5\textwidth]{pics/bootstrap.failure.png}
     \caption{Bootstrap Failure Message}
 \end{figure}
 
@@ -178,7 +178,7 @@ If registeration is unsuccesful, meta data of the new peer got saved in local me
 
 513: PEER\_LIST\_REQUEST
 
-514: PEER\_LIST\_REQUEST
+514: PEER\_LIST\_RESPONSE
 
 
 \section{Future Work}
