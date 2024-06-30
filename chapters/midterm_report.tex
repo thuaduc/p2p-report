@@ -1,5 +1,7 @@
 \section{Change of assumptions}
 
+There have been no significant changes from the assumptions delineated in our initial report. Consequently, we are adhering to our original plan.
+
 \section{Architecture of your module}
 The module \texttt{gossip} has been developed using the Golang programming language. It relies heavily on Go features like goroutines, Go channels, and multiple Go libraries. 
 
@@ -9,7 +11,7 @@ As the specification requires, the \texttt{gossip} module runs as two independen
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.5\textwidth]{pics/structure.png}
+    \includegraphics[width=0.7\textwidth]{pics/structure.png}
     \caption{Structure of the gossip module}
 \end{figure}
 
@@ -36,13 +38,15 @@ type DatatypeMapper struct {
 
 Thanks to the datatype mapper, the P2P protocol can recognize which kind of message it should propagate. When it receives a new message, it will check if this message type was requested by any module by reading the datatype mapper. If that is the case, it sends this message through \textbf{notify message Go channel}\footnote{Marked in orange in Figure 1}. API protocol also has a running goroutine that constantly listens to this channel. It can get those messages from P2P and send corresponding notification messages to the module requesting them. 
 
+\begin{lstlisting}
+notifyMsgChan := make(chan enum.NotifyMsg)
+\end{lstlisting}
+
 \subsection{API}
 
-The API is designed to facilitate a Gossip-based protocol in a distributed system, leveraging Go's robust features for concurrency and networking. At its core, the Server listens on a specified TCP address for incoming connections, using Go's net package to manage network communications. Once a connection is accepted, the Server hands it off to a Handler, which processes messages according to their type.
+The API operates by having the Server listen on a TCP address for connections, managed by Go's net package, and then forwarding these connections to a Handler. This Handler processes messages based on their type, using a custom logger for error reporting and Go's bytes and encoding/binary packages for message verification. It also routes messages to specific functions for handling different types, such as announcements, and communication across nodes.
 
-The Handler utilizes a custom logger for monitoring and error reporting, enhancing the system's reliability and debuggability. It reads incoming messages, verifies their size and type using the bytes and encoding/binary packages, and then routes them to the appropriate handler functions. These functions handle specific message types such as announcements or notifications, updating the datatypeMapper, or sending messages to the announceMsgChan channel as necessary.
-
-This seamless interaction between the Server and Handler ensures the system can efficiently process and route messages, maintaining data integrity and system state across distributed nodes. The use of Go's concurrency primitives, like goroutines and channels, allows the API to handle multiple connections simultaneously, making it scalable and robust for real-time, distributed communication.
+Through seamless Server-Handler interaction, the API efficiently manages message processing and routing, maintaining system integrity across nodes. Go's concurrency tools, like goroutines and channels, enable handling of multiple connections, ensuring scalability and robustness for real-time, distributed communication.
 
 \subsection{P2P}
 
@@ -56,8 +60,6 @@ In our current implementation, we use a static bootstrapping method to ensure th
     \item \textbf{Fetching Initial Peers}: After registration, the new node fetches an initial list of peers from the bootstrapper server. This list is used to establish initial connections and begin participating in the gossip protocol.
 \end{enumerate}
 
-
-Certainly, here is the shortened version:
 
 \subsubsection{Gossip Node:}
 
@@ -74,19 +76,19 @@ The \texttt{GossipNode} has several properties. The fanout, set to n=2, determin
 
 \subsubsection{Gossip Message}
 
-For efficient communication between peer, we define a structrue for Gossip Message(figure below):
+For efficient communication between peer, we define a structrue for Gossip Message:
 
 \begin{itemize}
     \item \textbf{MESSAGE\_TYPE}:  Predefined type of gossip message.
     \item \textbf{TTL (Time to Live)}:  Get from API call, reduce by each hop.
-    \item \textbf{RESERVED}: Place holder.
-    \item \textbf{PAYLOAD}:  Data get from API call.
+    \item \textbf{RESERVED}: This field is reserved for future feature.
+    \item \textbf{PAYLOAD}: Data gets from API calls.
 \end{itemize}
 
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.5\textwidth]{pics/gossip.message.png}
+    \includegraphics[width=0.45\textwidth]{pics/gossip.message.png}
     \caption{Gossip Message}
 \end{figure}
 
@@ -110,59 +112,58 @@ For security of Bootstrapper, we implement POW mechanism for the registering pro
 
 \subsubsection{BOOTSTRAP INIT}
 
-When a new peer opens a connection to Bootrapping Server, the server sends an INIT message to the peer. This message contains a challenge and its target difficulty which this peer needs to use to calculate the hash.
+When a new peer opens a connection to Bootrapping Server, the server sends an \texttt{BOOTSTRAP \_INIT} message to the peer. This message contains a challenge and its target difficulty which this peer needs to use to calculate the hash.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.5\textwidth]{pics/bootstrap.init.png}
+    \includegraphics[width=0.45\textwidth]{pics/bootstrap.init.png}
     \caption{Bootstrap Init Message}
 \end{figure}
 
 \subsubsection{BOOTSTRAP REGISTER}
 
-The peer calulate the SHA256 hash of the concatination of nonce (random number) and the challenge. If the resulting hash has the first n bits set to zeros (wheras n = target difficulty), then the peer can register by sending the BOOTSTRAP REGISTER message. If not, the nonce has to be changed to another random value and retried until one is found which gives one of the required SHA256 values. Note that SHA256 is considered a pseudo-random function. This means that there is no other possible way to find such values apart from randomly retrying them.
+The peer calculates the SHA256 hash of the concatenation of the nonce (random number) and the challenge. If the resulting hash has the first n bits set to zeros (whereas n = target difficulty), then the peer can register by sending the \texttt{BOOTSTRAP\_REGISTER} message. If not, the nonce has to be changed to another random value and retried until one is found, which gives one of the required SHA256 values.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.5\textwidth]{pics/bootstrap.register.png}
+    \includegraphics[width=0.45\textwidth]{pics/bootstrap.register.png}
     \caption{Bootstrap Register Message}
 \end{figure}
 
 \subsubsection{BOOTSTRAP SUCCESS}
 
-If registeration is successful, meta data of the new peer got saved in local memory of the bootstrapping service and a BOOTSTRAP SUCCESS message is returned to the peer. The message also contains initial peer list.
+If registeration is successful, meta data of the new peer got saved in local memory of the bootstrapping service and a \texttt{BOOTSTRAP\_SUCCESS} message is returned to the peer. The message also contains initial peer list.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.5\textwidth]{pics/bootstrap.success.png}
+    \includegraphics[width=0.45\textwidth]{pics/bootstrap.success.png}
     \caption{Bootstrap Success Message}
 \end{figure}
 
 \subsubsection{BOOTSTRAP FAILURE}
-If registeration is unsuccesful, meta data of the new peer got saved in local memory of the bootstrapping service and a BOOTSTRAP FAILURE message is returned to the peer with error message. 
+If registeration is unsuccesful, a \texttt{BOOTSTRAP\_FAILURE} message is returned to the peer with error message. 
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.5\textwidth]{pics/bootstrap.failure.png}
+    \includegraphics[width=0.45\textwidth]{pics/bootstrap.failure.png}
     \caption{Bootstrap Failure Message}
 \end{figure}
 
+\subsection{P2P}
 
-
+To guarantee confidentiality, the payload data sent from peer to peer is encrypted with the public key associated with the receiving peer, which is exchanged while bootstrapping. We are currently evaluating the possibility of introducing a secure channel for the peer-to-peer connection. However, we need to assess whether we have the necessary resources and time to accomplish this.
 
 \section{Specification of the peer-to-peer protocol that will be implemented}
 
 \subsection{Message Types}
 
-500-503: API SPECIFICATION
+504: BOOTSTRAP\_INIT
 
-504: BOOTSTRAP INIT
+505: BOOTSTRAP\_REGISTER
 
-505: BOOTSTRAP REGISTER
+506: BOOTSTRAP\_SUCCESS
 
-506: BOOTSTRAP SUCCESS
-
-507: BOOTSTRAP FAILURE
+507: BOOTSTRAP\_FAILURE
 
 
 508: PLACE\_HOLDER
@@ -197,7 +198,7 @@ In the upcoming weeks, there are still a few missing functionalities
 
 \section{Workload distributed}
 
-The initial distribution works out very well as we are responsible for each part as following: Duc TrungTrung (design and implement P2P Protocols, including bootstrapping mechanism), Thua Duc (implement API server, design overall architecture of the Peer, and security measurement). We will continue with that strategy.
+The initial distribution works out very well as we are responsible for each part as following: Duc Trung Nguyen (design and implement P2P Protocols, including bootstrapping mechanism), Thua Duc Nguyen (implement API server, design overall architecture of the Peer, and security measurement). We will continue with that strategy.
 
 
 \section{Effort spent for the project}
