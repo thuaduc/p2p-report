@@ -30,14 +30,157 @@ Thanks to the \texttt{DatatypeMapper}, the \texttt{P2P} protocol can recognize w
 We changed our security mechanism according to our midterm feedback. We integrated \texttt{POW} in every gossip message. The hardness of this challenge is defined in the config file. Depending on the security requirement of the project, we can adjust the hardness, also known as the number of leading zeros, accordingly. 
 
 \section{Software Documentation}
+\subsection{Important Components and configurations}
 
-\subsection{Dependency}
+\begin{itemize}
+    \item \textbf{Node}: The core component responsible for the peer's logic and communication. The node handles traffic from other peers (internode communication) and interactions within the same peer (intranode communication) across the API and P2P modules. It can be customized using the \texttt{config.ini} file to control behavior and parameters.
 
-\subsection{How to install and run}
+    \item \textbf{Bootstrapping Service}: A central server responsible for providing initial knowledge to newly joined peers. This service distributes a partial view of the network and designates a set of trusted \texttt{SeedNodes}. The number of \texttt{SeedNodes} can be configured via the \texttt{enum/bootstrapper\_config.go} file, ensuring flexible network deployment.
+\end{itemize}
+
+
+\subsection{How to configure and boot up more nodes}
+By default, we have set up the \texttt{docker-compose.yml} file to boot up the bootstrapping service along with three independent nodes. Below is an example of the \texttt{docker-compose.yml} file configuration.
+
+For more details, take a look at the \texttt{docker-compose.yml}
+
+ \textbf{Ports:} For each node, we map local ports to container ports. For example:
+  \begin{itemize}
+    \item \texttt{"9002:9000"} maps traffic from \texttt{localhost:9002} to \texttt{node:9000}.
+    \item \texttt{"9003:9001"} maps traffic from \texttt{localhost:9003} to \texttt{node:9001}.
+  \end{itemize}
+It's crucial to set these ports correctly to enable the client code to interact with the respective nodes.
+
+ \textbf{Container Names:} Each container has a unique name, such as \texttt{node}, \texttt{node1}, and \texttt{node2}, ensuring no conflicts.
+
+\textbf{Networks:} All containers must be in the same network (e.g., \texttt{my-network}) to correctly enable communication.
+
+\textbf{Volumes:} Each node's configuration is mounted from the \texttt{docker-container-config} folder to the container, e.g., \texttt{./docker-container-config/config-node:/root/configs}. Ensure you provide the correct path to the configuration file.
+
+Additionally, the \texttt{config.ini} file for each node should have a unique \texttt{p2p\_address} to prevent conflicts, as shown in the sample \texttt{config.ini}:
+
+For example: \texttt{node1:9000} and \texttt{node1:9001} for \texttt{node1}. And \texttt{node2:9000} and \texttt{node2:9001} for \texttt{node2}.
+
+\subsubsection{Boot up more nodes:}
+  \begin{itemize}
+    \item \textbf{Step 1:} add new config.ini file to \texttt{./docker-container-config} Make sure config.ini resides in a uniquely named folder according to the node you want to inject the config.int to. For example: \texttt{node10-config} should be injected into \texttt{node10}
+    \item \textbf{Step 2:} adjust \texttt{docker-compose.yml} accordingly. Add new entry to \texttt{services:} section. Make sure the path to config.ini is set correctly.
+  \end{itemize}
+  
+  
+\subsection{Additional Logic To P2P Protocol}
+
+\subsubsection{Peer Join:}
+When a peer joins the network, it needs to notify other peers to become part of the distributed system. This is done by sending a \texttt{PeerJoinAnnounce} message to all known peers. The joining peer sends out its address, which is then propagated through the network using the gossip protocol. This ensures all active peers update their local peer list with the new node.
+
+Key steps:
+\begin{itemize}
+    \item The new peer sends a \texttt{PeerJoinAnnounce} message.
+    \item Existing peers receive this message and add the new peer to their local list.
+    \item The message propagates via the gossip protocol to ensure network-wide awareness.
+\end{itemize}
+
+\subsubsection{Peer Leave:}
+When a peer leaves the network, it announces its departure by sending a \texttt{PeerLeaveAnnounce} message. This ensures the departing peer is removed from the other peers' lists. The peer sends this message to its known peers, who propagate the information using gossip to ensure all peers update their lists.
+
+Key steps:
+\begin{itemize}
+    \item The leaving peer sends a \texttt{PeerLeaveAnnounce} message.
+    \item Existing peers remove the peer from their local peer lists.
+    \item The message is gossiped across the network, updating all peers.
+\end{itemize}
+
+\subsubsection{Request Peer List:}
+A peer can request the peer list from another node to maintain an up-to-date view of the network. The requesting peer sends a \texttt{PeerListRequest} message, prompting the target peer to respond with its list of known peers. This ensures nodes remain aware of each other, particularly after membership changes.
+
+Key steps:
+\begin{itemize}
+    \item The requesting peer sends a \texttt{PeerListRequest} message.
+    \item The target peer responds with its current list of peers.
+\end{itemize}
+
+\subsubsection{Response Peer List:}
+When receiving a \texttt{PeerListRequest}, the peer responds with a \texttt{PeerListResponse} message, containing its current list of known peers. This allows the requesting peer to update its peer list accordingly and keeps the network synchronized.
+
+Key steps:
+\begin{itemize}
+    \item The peer receiving the request sends a \texttt{PeerListResponse} with its peer list.
+    \item The requesting peer updates its list based on the response.
+\end{itemize}
+
+
+
+\section{How to install and run}
+To install and run the project, follow the steps below:
+
+\begin{enumerate}
+    \item \texttt{git clone} the project repository to your local machine:
+    \begin{verbatim}
+    git clone <repository-url>
+    \end{verbatim}
+
+    \item Install \texttt{Docker Engine} on your system if it is not already installed. Please follow the instructions on \href{https://docs.docker.com/}{Docker's official site.}
+
+    \item Make the build script executable by running (make sure you are in the project directory):
+    \begin{verbatim}
+    chmod +x build.sh
+    \end{verbatim}
+
+    \item Run the build script that includes all necessary commands to pull build docker images and run them up:
+    \begin{verbatim}
+    ./build.sh
+    \end{verbatim}
+
+After the step above, you should be able to observe the behavior of the containers 
+
+The steps underneath are optional if you want to use our Go client. You can also interact with the running Nodes by using the Python client provided in the course.
+
+    \item (Optional) Install \texttt{Go} to ensure the Go environment is properly set up.
+
+    \item (Optional) Run Go Client to interact with node. For more details, take a look at Readme.md.
+    \begin{verbatim}
+
+    \end{verbatim}
+\end{enumerate}
+
 
 \subsection{Known Issues}
 
+\begin{itemize}
+    \item \textbf{Node Leave}: Currently, the node leave mechanism is not functioning correctly. The node fails to send a gossip message before shutting down completely. The reason may be due to using TCP instead of UDP for sending messages, which leads to delays and failed messages when a peer tries to read PeerLeaveAnnounce from the closed TCP connection.
+    
+    \item \textbf{Bootstrapping Inefficiencies}: The bootstrapping strategy is not optimized. Peer discovery can be slow and inefficient, especially in larger networks.
+    
+    \item \textbf{Seed Node Refresh}: There is no mechanism for peers to refresh their view of seed nodes if one of the seed nodes goes offline. This can lead to outdated peer lists and network instability.
+    
+    \item \textbf{Seed Node Assignment}: Any peer who joins the network first becomes a seed node. If a seed node goes offline, the next joining node becomes a seed node, which can yield issues with network stability.
+\end{itemize}
+
 \section{Future Work}
 
-\section{Workload distribution}
+\begin{itemize}
+    \item \textbf{Improve Node Leave Mechanism}: Implement a more robust mechanism to handle node departure. Currently, nodes fail to send the gossip message before shutting down completely. Switching from TCP to UDP for leave notifications would allow faster, more reliable communication before the node exits.
 
+    \item \textbf{Optimize Bootstrapping Strategy}: The current bootstrapping strategy has inefficiencies and should be optimized to prevent issues like inconsistent peer discovery and poor handling of network partitioning.
+
+    \item \textbf{Seed Node Refresh Mechanism}: Develop a dynamic seed node refresh mechanism to allow peers to refresh their view of seed nodes. This is especially necessary when one of the seed nodes goes offline, so the network can remain stable without depending on unreachable nodes.
+
+    \item \textbf{Redesign Seed Node Assignment}: The current logic assigns the first peer as a seed node, and if a seed node goes offline, the next joining node becomes a seed node. This can lead to instability. The seed node assignment mechanism should be more robust, ensuring stable and capable nodes are assigned as seed nodes.
+    
+    \item \textbf{Peer View Synchronization}: Work on synchronizing peer lists more efficiently across nodes, particularly in the event of network partitions or if a large number of nodes join simultaneously.
+    
+    \item \textbf{Security Enhancements}: Explore more advanced security protocols for P2P communication beyond proof of work, such as mutual authentication or encryption, to enhance the integrity and confidentiality of gossip messages.
+\end{itemize}
+
+\section{Workload Distribution}
+Our previous distribution of tasks has worked very well, ensuring smooth collaboration and efficient development. The responsibilities were divided as follows:
+
+\begin{itemize}
+
+    \item \textbf{Thua Duc Nguyen}: in charge of implementing the API server, designing the overall architecture of the peer, and developing security measures. Additionally, Duc implemented the Go client to facilitate testing and provided scripts that streamlined Docker container building and execution processes.
+    
+    \item \textbf{Duc Trung Nguyen}:  responsible for designing and implementing the core P2P protocols, including the bootstrapping mechanism. Additionally, Trung handled dockerizing the application, allowing seamless config file injection into containers and ensuring flexible deployment strategies.
+
+\end{itemize}
+
+This clear division of tasks allowed us to effectively meet our deadlines and achieve the project goals.
